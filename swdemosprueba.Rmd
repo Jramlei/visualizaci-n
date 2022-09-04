@@ -1,0 +1,428 @@
+---
+title: "swdemoscopia"
+author: "Francisco Javier Ramírez Leiva"
+date: "2022-09-01"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Uso de librerías y fichero necesarios para el trabajo
+
+
+```{r warning=FALSE, message=FALSE}
+library(readr)
+library(tidyverse)
+library(haven)
+library(ggplot2)
+library(dplyr)
+
+```
+
+
+```{r pressure, echo=FALSE}
+swdemos <- read_sav("66010322.sav") #Macroencuesta desde enero a mayo 2022
+```
+
+## Limpieza de variables
+
+### Sexo
+
+```{r warning=FALSE, message=FALSE}
+
+#swdemos$SEXO
+
+swdemos$hombre <- swdemos$SEXO
+swdemos$hombre[swdemos$hombre == 2] <-0
+swdemos$hombre[swdemos$hombre == 1] <-1
+
+swdemos$hombre <- factor(swdemos$hombre,
+                         levels = c(0,1),
+                         labels = c("mujer", "hombre")) 
+table(swdemos$hombre)
+
+```
+
+### EDAD
+
+```{r warning=FALSE, message=FALSE}
+
+#swdemos$EDAD
+
+swdemos$edad <- swdemos$EDAD
+
+swdemos$edad[swdemos$edad == 99] <- NA 
+swdemos$edad[swdemos$edad >= 65] <- 5
+swdemos$edad[swdemos$edad >= 45] <- 4
+swdemos$edad[swdemos$edad >= 35] <- 3
+swdemos$edad[swdemos$edad >= 25] <- 2
+swdemos$edad[swdemos$edad >= 18] <- 1
+
+swdemos$edad <- factor( swdemos$edad,
+                         levels = c( 1:5),
+                         labels = c( "18-24", "25-34", "35-44", "45-64", "+65"))
+
+table(swdemos$edad)
+
+```
+
+### Formación
+
+```{r warning=FALSE, message=FALSE}
+
+#swdemos$ESTUDIOS
+
+swdemos$formacion <- swdemos$ESTUDIOS
+swdemos$formacion[swdemos$formacion>6]<- NA
+swdemos$formacion <- factor(swdemos$formacion,
+                                    levels = c(1:6),
+                                    labels = c("sin_estudios", "primaria", "secundaria1", "secundaria2", "fp", "superiores")) 
+
+table(swdemos$formacion)
+
+```
+
+### Situación Laboral
+
+```{r warning=FALSE, message=FALSE}
+
+#swdemos$SITLAB
+
+swdemos$trabajo <- swdemos$SITLAB
+swdemos$trabajo[swdemos$trabajo == 2]<-2
+swdemos$trabajo[swdemos$trabajo == 3]<-2
+swdemos$trabajo[swdemos$trabajo == 4]<-3
+swdemos$trabajo[swdemos$trabajo == 5]<-3
+swdemos$trabajo[swdemos$trabajo == 6]<-4
+swdemos$trabajo[swdemos$trabajo == 7]<-5
+swdemos$trabajo[swdemos$trabajo > 7]<-NA
+
+swdemos$trabajo <- factor(swdemos$trabajo,
+                            levels = c(1:5),
+                            labels = c("trabaja", "pensionista", "parado", "estudiante", "domestico")) 
+
+
+table(swdemos$trabajo)
+
+```
+
+### Preferencia por Presidente
+
+```{r warning=FALSE, message=FALSE}
+
+#swdemos$PREFPTE
+
+swdemos$preferencia <- swdemos$PREFPTE
+
+swdemos$preferencia[swdemos$preferencia == 97] <-10
+swdemos$preferencia[swdemos$preferencia >= 96] <-NA
+
+swdemos$preferencia  <- factor(swdemos$preferencia ,
+                                         levels = c(1:10),
+                                         labels = c( "Sanchez", "Casado", "Abascal", "Diaz", 
+                                                    "Garzon", "Arrimadas", "Errejon", "Ayuso", "Feijoo", "ninguno")
+                               ) 
+
+table( swdemos$preferencia)
+
+```
+
+### Ideología del entrevistado
+
+```{r warning=FALSE, message=FALSE}
+
+#swdemos$ESCIDEOL
+
+swdemos$ideol <- swdemos$ESCIDEOL
+
+swdemos$ideol[swdemos$ideol > 10] <- NA
+
+table(swdemos$ideol)
+
+```
+
+### Clase social subjetiva
+
+```{r warning=FALSE, message=FALSE}
+
+#swdemos$CLASESUB
+
+swdemos$clase <- swdemos$CLASESUB
+
+swdemos$clase[swdemos$clase > 5] <- NA
+
+swdemos$clase <- factor(swdemos$clase,
+                          levels = c(1:5),
+                          labels = c("alta", "media", "mediabaja", "obrera", "baja")) 
+
+table(swdemos$clase)
+
+```
+
+### Intención de voto
+
+```{r warning=FALSE, message=FALSE}
+
+#swdemos$INTENCIONGR
+
+swdemos$voto <- swdemos$INTENCIONGR
+
+swdemos$voto[ swdemos$voto == 1] <- 1
+swdemos$voto[ swdemos$voto == 2] <- 2
+swdemos$voto[ swdemos$voto == 18] <- 3
+swdemos$voto[ swdemos$voto == 4] <- 4
+swdemos$voto[ swdemos$voto == 21] <- 5
+swdemos$voto[ swdemos$voto > 5] <- NA
+
+swdemos$voto <- factor( swdemos$voto,
+                         levels = c( 1:5),
+                         labels = c( "PP", "PSOE", "VOX", "CS", "UP"))
+
+table(swdemos$voto)
+
+```
+
+
+### Recuerdo de voto Nov-19
+
+```{r warning=FALSE, message=FALSE}
+
+#swdemos$RECUVOTOGR
+
+swdemos$recuerdo <- swdemos$RECUVOTOGR
+
+swdemos$recuerdo[swdemos$recuerdo == 0] <- NA
+swdemos$recuerdo[swdemos$recuerdo == 18] <- 3
+swdemos$recuerdo[swdemos$recuerdo == 21] <- 5
+swdemos$recuerdo[swdemos$recuerdo == 67] <- 5
+swdemos$recuerdo[swdemos$recuerdo >= 7] <- NA
+
+
+swdemos$recuerdo <- factor(swdemos$recuerdo,
+                       levels = c(1:5),
+                       labels = c("PP", "PSOE", "VOX", "CS", "UP")) 
+
+table(swdemos$recuerdo)
+
+```
+
+### Simpatía del votante con respecto a los partidos
+
+```{r warning=FALSE, message=FALSE}
+
+#swdemos$SIMPATIAR
+
+swdemos$simpa <- swdemos$SIMPATIAR
+
+swdemos$simpa[swdemos$simpa==0] <- NA
+swdemos$simpa[swdemos$simpa==3] <- 5
+swdemos$simpa[swdemos$simpa==21] <- 5
+swdemos$simpa[swdemos$simpa==18] <- 3
+swdemos$simpa[swdemos$simpa >= 7] <- NA
+
+
+swdemos$simpa <- factor(swdemos$simpa,
+                           levels = c(1:5),
+                           labels = c("PP", "PSOE", "VOX", "Cs", "UP")) 
+
+table(swdemos$simpa)
+
+```
+
+## Selecionamos las variables para la visualización de datos e introduccimos en un df
+
+```{r warning=FALSE, message=FALSE}
+
+df<- swdemos %>% select( hombre, edad, EDAD, formacion, clase, ideol, trabajo, voto, preferencia, recuerdo, simpa)
+
+## Creamos nuestra paletas de colores para cada partido con peso nacional
+
+colores <- c( "#17589d", "#ff0000", "#34d018", "#ff6d01", "#6a0d7a")
+names(colores) <- c( "PP", "PSOE", "VOX", "CS", "UP")
+
+```
+
+Creamos y añadimos una nueva columna con el porcentaje de voto a cada formación
+
+```{r warning=FALSE, message=FALSE}
+
+df <- df%>% 
+  mutate(porc = case_when(voto == "PP" ~ 1739/11559*100,
+                          voto == "PSOE" ~ 2465/3820*100,
+                          voto == "VOX" ~ 941/3820*100,
+                          voto == "CS" ~ 277/3820*100,
+                          voto == "UP"~ 1103/3820*100))
+
+```
+
+## Graficamos
+
+```{r warning=FALSE, message=FALSE}
+
+### EDAD
+
+df %>%
+  filter(!is.na(recuerdo)) %>%
+  ggplot() +
+  aes(x = EDAD) +
+  geom_density(adjust = 1L, fill = "#FF8C00") +
+  labs(title = "Edad de los encuestados") +
+  theme_classic() +
+  theme(
+    plot.title = element_text(size = 15L,
+                              face = "bold",
+                              hjust = 0.5)
+  )
+
+df %>%
+  filter(!is.na(recuerdo)) %>%
+  ggplot() +
+  aes(x = recuerdo, fill = recuerdo) +
+  geom_bar() +
+  scale_fill_manual(values = colores) +
+  theme_classic() +
+  facet_wrap(vars(edad), scales = "free"
+             )
+```
+
+```{r warning=FALSE, message=FALSE}
+
+### CLASE
+
+df %>%
+  filter(!is.na(clase)) %>%
+  filter(!is.na(voto)) %>%
+  ggplot() +
+  aes(x = voto, fill = voto, group = porc) +
+  geom_bar() +
+  scale_fill_manual(values = colores) +
+  theme_classic() +
+  facet_wrap(vars(clase), scales = "free"
+             )
+### VOTO e IDEOLOGÍA
+
+df %>%
+  filter(!is.na(voto)) %>%
+  ggplot() +
+  aes(x = voto, y = ideol, colour = voto) +
+  geom_boxplot(fill = "#112446") +
+  scale_color_manual(values = colores) +
+  labs(x = "Intención de voto", y = "Ideolgía", title = "Intención de voto por escala ideológica") +
+  theme_classic()
+
+
+```
+
+
+```{r warning=FALSE, message=FALSE}
+
+### INTENCIÓN DE VOTO X TRABAJO
+
+df %>%
+  filter(!is.na(trabajo)) %>%
+  filter(!is.na(voto)) %>%
+  ggplot() +
+  geom_bar(mapping = aes(x = voto, fill = voto, position = "dodge")) +
+  scale_fill_manual(values = colores)+
+  labs(
+    x = "Intención de votos a partido",
+    title = "Intención de voto y Trabajo"
+  ) +
+  theme_classic() +
+  theme(
+    plot.title = element_text(size = 16L,
+                              face = "bold",
+                              hjust = 0.5),
+    axis.title.x = element_text(size = 13L,
+                                face = "bold")
+  ) +
+  facet_wrap(vars(trabajo), scales = "free")
+
+### RECUERDO X IDEOLOGÍA
+
+df %>%
+  filter(!is.na(recuerdo)) %>%
+  ggplot() +
+  aes(x = recuerdo, y = ideol) +
+  geom_jitter(size = 1.5) +
+  labs(
+    x = "Recuerdo ",
+    title = "Recuerdo de voto por Ideología"
+  ) +
+  theme_classic() +
+  theme(
+    plot.title = element_text(size = 16L,
+                              face = "bold",
+                              hjust = 0.5),
+    axis.title.x = element_text(size = 13L,
+                                face = "bold")
+  )
+
+```
+
+## Otras funciones
+
+```{r warning=FALSE, message=FALSE}
+
+#if (!require(devtools)) {
+#    install.packages('devtools')
+#}
+#devtools::install_github('erocoar/ggpol')
+#install.packages("ggpol")
+
+library(ggpol)
+
+## Bundestag
+
+bt <- data.frame(
+ parties = factor(c("CDU", "CSU", "AfD", "FDP", "SPD", 
+                    "Linke", "Gruene", "Fraktionslos"),
+                  levels = c("CDU", "CSU", "AfD", "FDP", "SPD", 
+                             "Linke", "Gruene", "Fraktionslos")),
+ seats   = c(200, 46, 92, 80, 153, 69, 67, 2),
+ colors  = c("black", "blue", "lightblue", "yellow", 
+             "red","purple", "green", "grey"),
+ stringsAsFactors = FALSE)
+
+ggplot(bt) + 
+  geom_parliament(aes(seats = seats, fill = parties), color = "black") + 
+  scale_fill_manual(values = bt$colors, labels = bt$parties) +
+  coord_fixed() + 
+  theme_void()
+
+## Municipio de 25 concejales
+
+bt2 <- data.frame(
+ parties = factor(c("UP","PSOE", "CS","PP", "VOX"),
+                  levels = c("UP","PSOE", "CS","PP", "VOX")),
+ seats   = c(1, 12, 1, 9, 1),
+ colors  = c("purple", "red", "orange", "blue", "green"),
+ stringsAsFactors = FALSE)
+
+ggplot(bt2) + 
+  geom_parliament(aes(seats = seats, fill = parties), color = "black") + 
+  scale_fill_manual(values = bt2$colors, labels = bt2$parties) +
+  coord_fixed() + 
+  theme_void()
+
+```
+
+
+```{r, warning = FALSE, message=FALSE} 
+
+#install.packages("ggpie")
+library(ggpie)
+library(plotrix)
+
+df %>%
+  filter(!is.na(voto)) %>%
+  ggpie( group_key = "voto", count_type = "full", 
+         label_info = "all", label_type = "circle",
+      label_size = 4, label_pos = "out") +
+  scale_fill_manual( values = colores)
+   
+```
+
+
