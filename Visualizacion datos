@@ -1,0 +1,583 @@
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Abrimos las librerías y los dos ficheros del CIS, el del mes de marzo (3313) y el de abril (3318):
+
+```{r}
+
+library(tidyverse)
+library(haven)
+
+cismarzo <- read_sav( "3313.sav")
+cisabril <- read_sav( "3318.sav")
+
+```
+
+## Limpieza de variables
+
+### Sexo
+
+```{r}
+
+# Marzo
+
+cismarzo$hombre <- cismarzo$SEXO
+cismarzo$hombre[ cismarzo$hombre == 1] <- 1
+cismarzo$hombre[ cismarzo$hombre == 2] <- 0
+
+cismarzo$hombre <- factor( cismarzo$hombre,
+                      levels = c( 0,1),
+                      labels = c( "Mujer", "Hombre"))
+
+table( cismarzo$hombre)
+
+# Abril
+
+cisabril$hombre <- cisabril$SEXO
+cisabril$hombre[ cisabril$hombre == 1] <- 1
+cisabril$hombre[ cisabril$hombre == 2] <- 0
+
+cisabril$hombre <- factor( cisabril$hombre,
+                      levels = c( 0,1),
+                      labels = c( "Mujer", "Hombre"))
+
+table( cisabril$hombre)
+
+```
+
+### Edad
+
+```{r}
+
+# Marzo
+
+cismarzo$edad <- cismarzo$EDAD
+summary(cismarzo$edad) #no hay NA's
+
+cismarzo$edad[ cismarzo$edad >= 65] <- 4
+cismarzo$edad[ cismarzo$edad >= 45] <- 3
+cismarzo$edad[ cismarzo$edad >= 25] <- 2
+cismarzo$edad[ cismarzo$edad >= 18] <- 1
+
+cismarzo$edad <- factor( cismarzo$edad,
+                         levels = c( 1:4),
+                         labels = c( "18-24", "25-44", "45-64", "+65"))
+
+table( cismarzo$edad)
+
+# Abril
+
+cisabril$edad <- cisabril$EDAD
+summary(cisabril$edad) #no hay NA's
+
+cisabril$edad[ cisabril$edad >= 65] <- 4
+cisabril$edad[ cisabril$edad >= 45] <- 3
+cisabril$edad[ cisabril$edad >= 25] <- 2
+cisabril$edad[ cisabril$edad >= 18] <- 1
+
+cisabril$edad <- factor( cisabril$edad,
+                         levels = c( 1:4),
+                         labels = c( "18-24", "25-44", "45-64", "+65"))
+
+table( cisabril$edad)
+
+```
+
+### Ideología
+
+```{r}
+
+# Marzo
+
+cismarzo$ideol <- cismarzo$ESCIDEOL
+cismarzo$ideol[ cismarzo$ideol > 10] <- NA
+summary( cismarzo$ideol)
+
+# Abril
+
+cisabril$ideol <- cisabril$ESCIDEOL
+cisabril$ideol[ cisabril$ideol > 10] <- NA
+summary( cisabril$ideol)
+
+```
+
+### Estudios
+
+```{r}
+
+# Marzo
+
+cismarzo$estudios <- cismarzo$ESTUDIOS
+
+cismarzo$estudios[ cismarzo$estudios == 1] <- 1
+cismarzo$estudios[ cismarzo$estudios == 2] <- 1
+cismarzo$estudios[ cismarzo$estudios == 3] <- 2
+cismarzo$estudios[ cismarzo$estudios == 4] <- 2
+cismarzo$estudios[ cismarzo$estudios == 5] <- 2
+cismarzo$estudios[ cismarzo$estudios == 6] <- 3
+cismarzo$estudios[ cismarzo$estudios > 6] <- NA
+
+cismarzo$estudios <- factor( cismarzo$estudios,
+                      levels = c( 1:3),
+                      labels = c( "Sin estudios/Primarios", "Secundarios/FP", "Superiores"))
+
+table( cismarzo$estudios)
+
+# Abril
+
+cisabril$estudios <- cisabril$ESTUDIOS
+
+cisabril$estudios[ cisabril$estudios == 1] <- 1
+cisabril$estudios[ cisabril$estudios == 2] <- 1
+cisabril$estudios[ cisabril$estudios == 3] <- 2
+cisabril$estudios[ cisabril$estudios == 4] <- 2
+cisabril$estudios[ cisabril$estudios == 5] <- 2
+cisabril$estudios[ cisabril$estudios == 6] <- 3
+cisabril$estudios[ cisabril$estudios > 6] <- NA
+
+cisabril$estudios <- factor( cisabril$estudios,
+                      levels = c( 1:3),
+                      labels = c( "Sin estudios/Primarios", "Secundarios/FP", "Superiores"))
+
+table( cisabril$estudios)
+
+```
+
+### Clase social
+
+```{r}
+
+# Marzo
+
+cismarzo$clase <- cismarzo$CLASESUB
+
+cismarzo$clase[ cismarzo$clase == 1] <- 1
+cismarzo$clase[ cismarzo$clase == 2] <- 2
+cismarzo$clase[ cismarzo$clase == 3] <- 2
+cismarzo$clase[ cismarzo$clase == 4] <- 3
+cismarzo$clase[ cismarzo$clase == 5] <- 3
+cismarzo$clase[ cismarzo$clase > 5] <- NA
+
+cismarzo$clase <- factor( cismarzo$clase,
+                     levels = c( 1:3),
+                     labels = c( "Alta", "Media", "Baja"))
+
+table(cismarzo$clase)
+
+# Abril
+
+cisabril$clase <- cisabril$CLASESUB
+
+cisabril$clase[ cisabril$clase == 1] <- 1
+cisabril$clase[ cisabril$clase == 2] <- 2
+cisabril$clase[ cisabril$clase == 3] <- 2
+cisabril$clase[ cisabril$clase == 4] <- 3
+cisabril$clase[ cisabril$clase == 5] <- 3
+
+cisabril$clase <- factor( cisabril$clase,
+                     levels = c( 1:3),
+                     labels = c( "Alta", "Media", "Baja"))
+
+table(cisabril$clase)
+
+```
+
+### Intención de voto
+
+```{r}
+
+# Marzo
+
+cismarzo$voto <- cismarzo$INTENCIONGR
+
+cismarzo$voto[ cismarzo$voto == 1] <- 1
+cismarzo$voto[ cismarzo$voto == 2] <- 2
+cismarzo$voto[ cismarzo$voto == 18] <- 3
+cismarzo$voto[ cismarzo$voto == 4] <- 4
+cismarzo$voto[ cismarzo$voto == 21] <- 5
+cismarzo$voto[ cismarzo$voto > 5] <- NA
+
+cismarzo$voto <- factor( cismarzo$voto,
+                         levels = c( 1:5),
+                         labels = c( "PP", "PSOE", "Vox", "Cs", "UP"))
+
+table( cismarzo$voto)
+
+# Abril
+
+cisabril$voto <- cisabril$INTENCIONGR
+
+cisabril$voto[ cisabril$voto == 1] <- 1
+cisabril$voto[ cisabril$voto == 2] <- 2
+cisabril$voto[ cisabril$voto == 18] <- 3
+cisabril$voto[ cisabril$voto == 4] <- 4
+cisabril$voto[ cisabril$voto == 21] <- 5
+cisabril$voto[ cisabril$voto > 5] <- NA
+
+cisabril$voto <- factor( cisabril$voto,
+                         levels = c( 1:5),
+                         labels = c( "PP", "PSOE", "Vox", "Cs", "UP"))
+
+table( cisabril$voto)
+
+```
+
+### Recuerdo de voto (2019)
+
+```{r}
+
+# Marzo
+
+cismarzo$recuerdo <- cismarzo$RECUERDO
+
+cismarzo$recuerdo[ cismarzo$recuerdo == 1] <- 1
+cismarzo$recuerdo[ cismarzo$recuerdo == 2] <- 2
+cismarzo$recuerdo[ cismarzo$recuerdo == 18] <- 3
+cismarzo$recuerdo[ cismarzo$recuerdo == 4] <- 4
+cismarzo$recuerdo[ cismarzo$recuerdo == 6] <- 5
+cismarzo$recuerdo[ cismarzo$recuerdo == 21] <- 5
+cismarzo$recuerdo[ cismarzo$recuerdo == 67] <- 5
+cismarzo$recuerdo[ cismarzo$recuerdo == 95] <- 6
+cismarzo$recuerdo[ cismarzo$recuerdo >= 77] <- NA
+cismarzo$recuerdo[ cismarzo$recuerdo > 6] <- 6
+
+cismarzo$recuerdo <- factor( cismarzo$recuerdo,
+                             levels = c( 1:6),
+                             labels = c( "PP", "PSOE", "Vox", "Cs", "UP", "Otros"))
+
+table(cismarzo$recuerdo)
+
+# Abril
+
+cisabril$recuerdo <- cisabril$RECUERDO
+
+cisabril$recuerdo[ cisabril$recuerdo == 1] <- 1
+cisabril$recuerdo[ cisabril$recuerdo == 2] <- 2
+cisabril$recuerdo[ cisabril$recuerdo == 18] <- 3
+cisabril$recuerdo[ cisabril$recuerdo == 4] <- 4
+cisabril$recuerdo[ cisabril$recuerdo == 6] <- 5
+cisabril$recuerdo[ cisabril$recuerdo == 21] <- 5
+cisabril$recuerdo[ cisabril$recuerdo == 67] <- 5
+cisabril$recuerdo[ cisabril$recuerdo == 95] <- 6
+cisabril$recuerdo[ cisabril$recuerdo >= 77] <- NA
+cisabril$recuerdo[ cisabril$recuerdo > 6] <- 6
+
+cisabril$recuerdo <- factor( cisabril$recuerdo,
+                             levels = c( 1:6),
+                             labels = c( "PP", "PSOE", "Vox", "Cs", "UP", "Otros"))
+
+table(cisabril$recuerdo)
+
+```
+
+### Preferencia como Presidente del Gobierno
+
+```{r}
+
+# Marzo
+
+cismarzo$presidente <- cismarzo$PREFPTE
+cismarzo$presidente [ cismarzo$presidente > 97] <- NA
+
+cismarzo$presidente <- factor( cismarzo$presidente,
+                               levels = c( 1:7, 96, 97),
+                               labels = c( "Sánchez", "Casado", "Abascal", "Iglesias", "Garzón", "Arrimadas", "Errejón", "Otro", "Ninguno"))
+
+table(cismarzo$presidente)
+
+# Abril
+
+cisabril$presidente <- cisabril$PREFPTE
+cisabril$presidente [ cisabril$presidente > 97] <- NA
+
+cisabril$presidente <- factor( cisabril$presidente,
+                               levels = c( 1:7, 96, 97),
+                               labels = c( "Sánchez", "Casado", "Abascal", "Iglesias", "Garzón", "Arrimadas", "Errejón", "Otro", "Ninguno"))
+
+table(cisabril$presidente)
+
+```
+
+### Valoración de líderes y ministros
+
+```{r}
+
+# Marzo
+
+  # Pablo Iglesias
+cismarzo$valoracionIglesias <- cismarzo$VALORALIDERES_3
+cismarzo$valoracionIglesias[ cismarzo$valoracionIglesias > 10] <- NA
+summary( cismarzo$valoracionIglesias)
+  
+  # Inés Arrimadas
+cismarzo$valoracionArrimadas <- cismarzo$VALORALIDERES_5
+cismarzo$valoracionArrimadas[ cismarzo$valoracionArrimadas > 10] <- NA
+summary( cismarzo$valoracionArrimadas)
+
+# Abril
+  
+  # Pablo Iglesias
+cisabril$valoracionIglesias <- cisabril$VALORALIDERES_3
+cisabril$valoracionIglesias[ cisabril$valoracionIglesias > 10] <- NA
+summary( cisabril$valoracionIglesias)
+  
+  # Inés Arrimadas
+cisabril$valoracionArrimadas <- cisabril$VALORALIDERES_5
+cisabril$valoracionArrimadas[ cisabril$valoracionArrimadas > 10] <- NA
+summary( cisabril$valoracionArrimadas)
+  
+  # Yolanda Díaz
+cisabril$valoracionYolanda <- cisabril$P28_9
+cisabril$valoracionYolanda [ cisabril$valoracionYolanda > 10] <- NA
+summary( cisabril$valoracionYolanda)
+
+```
+
+
+```{r}
+
+df_marzo<- cismarzo %>% select( voto ,edad, valoracionIglesias, valoracionArrimadas, presidente, recuerdo, clase, estudios, ideol, hombre)
+df_abril<- cisabril %>% select( voto ,edad, valoracionIglesias, valoracionYolanda, valoracionArrimadas, presidente, recuerdo, clase, estudios, ideol, hombre)
+
+```
+
+
+
+```{r}
+colores <- c( "#17589d", "#ff0000", "#34d018", "#ff6d01", "#6a0d7a")
+names(colores) <- c( "PP", "PSOE", "Vox", "Cs", "UP")
+
+df_marzo <- df_marzo %>% 
+  mutate(porc = case_when(voto == "PP" ~ 380/3820*100,
+                          voto == "PSOE" ~ 803/3820*100,
+                          voto == "Vox" ~ 331/3820*100,
+                          voto == "Cs" ~ 208/3820*100,
+                          voto == "UP"~ 271/3820*100))
+
+df_abril <- df_abril %>% 
+  mutate(porc = case_when(voto == "PP" ~ 446/3820*100,
+                          voto == "PSOE" ~ 847/3820*100,
+                          voto == "Vox" ~ 341/3820*100,
+                          voto == "Cs" ~ 127/3820*100,
+                          voto == "UP"~ 278/3820*100))
+
+#Por Edad
+df_marzo %>% 
+  na.omit() %>% 
+  filter(edad == "18-24") %>% 
+  group_by(porc) %>% 
+  select(voto, edad, porc) %>% 
+  ggplot() +
+  geom_col(mapping = aes(x = voto, y = edad, fill = voto), show.legend = T) +
+  scale_fill_manual(values = colores) +
+  theme_light() +
+  labs(x = "Votos", y = "Edades", title = "Votos por edad")
+
+
+df_marzo %>% 
+  na.omit() %>% 
+  filter(edad == "25-44") %>% 
+  group_by(porc) %>% 
+  select(voto, edad, porc) %>% 
+  ggplot() +
+  geom_col(mapping = aes(x = voto, y = edad, fill = voto), show.legend = T) +
+  scale_fill_manual(values = colores) +
+  theme_light() +
+  labs(x = "Votos", y = "Edades", title = "Votos por edad")
+
+df_marzo %>% 
+  na.omit() %>% 
+  filter(edad == "45-64") %>% 
+  group_by(porc) %>% 
+  select(voto, edad, porc) %>% 
+  ggplot() +
+  geom_col(mapping = aes(x = voto, y = edad, fill = voto), show.legend = T) +
+  scale_fill_manual(values = colores) +
+  theme_light() +
+  labs(x = "Votos", y = "Edades", title = "Votos por edad")
+
+df_marzo %>% 
+  na.omit() %>% 
+  filter(edad == "+65") %>% 
+  group_by(porc) %>% 
+  select(voto, edad, porc) %>% 
+  ggplot() +
+  geom_col(mapping = aes(x = voto, y = edad, fill = voto), show.legend = T) +
+  scale_fill_manual(values = colores) +
+  theme_light() +
+  labs(x = "Votos", y = "Edades", title = "Votos por edad")
+
+df_abril %>% 
+  na.omit() %>% 
+  filter(edad == "18-24") %>% 
+  group_by(porc) %>% 
+  select(voto, edad, porc) %>% 
+  ggplot() +
+  geom_col(mapping = aes(x = voto, y = edad, fill = voto), show.legend = T) +
+  scale_fill_manual(values = colores) +
+  theme_light() +
+  labs(x = "Votos", y = "Edades", title = "Votos por edad")
+
+df_abril %>% 
+  na.omit() %>% 
+  filter(edad == "25-44") %>% 
+  group_by(porc) %>% 
+  select(voto, edad, porc) %>% 
+  ggplot() +
+  geom_col(mapping = aes(x = voto, y = edad, fill = voto), show.legend = T) +
+  scale_fill_manual(values = colores) +
+  theme_light() +
+  labs(x = "Votos", y = "Edades", title = "Votos por edad")
+
+df_abril %>% 
+  na.omit() %>% 
+  filter(edad == "45-64") %>% 
+  group_by(porc) %>% 
+  select(voto, edad, porc) %>% 
+  ggplot() +
+  geom_col(mapping = aes(x = voto, y = edad, fill = voto), show.legend = T) +
+  scale_fill_manual(values = colores) +
+  theme_light() +
+  labs(x = "Votos", y = "Edades", title = "Votos por edad")
+
+df_abril %>% 
+  na.omit() %>% 
+  filter(edad == "+65") %>% 
+  group_by(porc) %>% 
+  select(voto, edad, porc) %>% 
+  ggplot() +
+  geom_col(mapping = aes(x = voto, y = edad, fill = voto), show.legend = T) +
+  scale_fill_manual(values = colores) +
+  theme_light() +
+  labs(x = "Votos", y = "Edades", title = "Votos por edad")
+
+```
+
+
+```{r}
+#Por Sexo
+
+df_marzo %>% 
+  na.omit() %>% 
+  select(voto, hombre, porc) %>% 
+  filter(hombre == "Hombre") %>% 
+  group_by( porc) %>% 
+  ggplot() +
+  geom_col(mapping = aes(x = voto, y = hombre, fill = voto), show.legend = T) +
+  scale_fill_manual(values = colores) +
+  theme_light() +
+  labs(x = "Votos", y = "Sexo", title = "Votos por sexo")
+
+df_marzo %>% 
+  na.omit() %>% 
+  select(voto, hombre, porc) %>% 
+  filter(hombre == "Mujer") %>% 
+  group_by( porc) %>% 
+  ggplot() +
+  geom_col(mapping = aes(x = voto, y = hombre, fill = voto), show.legend = T) +
+  scale_fill_manual(values = colores) +
+  theme_light() +
+  labs(x = "Votos", y = "Sexo", title = "Votos por sexo")
+
+df_abril %>% 
+  na.omit() %>% 
+  select(voto, hombre, porc) %>% 
+  filter(hombre == "Hombre") %>% 
+  group_by( porc) %>% 
+  ggplot() +
+  geom_col(mapping = aes(x = voto, y = hombre, fill = voto), show.legend = T) +
+  scale_fill_manual(values = colores) +
+  theme_light() +
+  labs(x = "Votos", y = "Sexo", title = "Votos por sexo")
+
+df_abril %>% 
+  na.omit() %>% 
+  select(voto, hombre, porc) %>% 
+  group_by( porc) %>% 
+  filter(hombre == "Mujer") %>% 
+  ggplot() +
+  geom_col(mapping = aes(x = voto, y = hombre, fill = voto), show.legend = T) +
+  scale_fill_manual(values = colores) +
+  theme_light() +
+  labs(x = "Votos", y = "Sexo", title = "Votos por sexo")
+
+```
+
+
+```{r}
+#Por estudios
+
+df_marzo %>% 
+  na.omit() %>% 
+  select(voto, estudios, porc) %>% 
+  filter(estudios == "Sin estudios/Primarios") %>% 
+  group_by( porc) %>% 
+  ggplot() +
+  geom_col(mapping = aes(x = voto, y = estudios, fill = voto), show.legend = T) +
+  scale_fill_manual(values = colores) +
+  theme_light() +
+  labs(x = "Votos", y = "Estudios", title = "Votos por estudios primarios")
+
+df_marzo %>% 
+  na.omit() %>% 
+  select(voto, estudios, porc) %>% 
+  filter(estudios == "Secundarios/FP") %>%
+  group_by( porc) %>% 
+  ggplot() +
+  geom_col(mapping = aes(x = voto, y = estudios, fill = voto), show.legend = T) +
+  scale_fill_manual(values = colores) +
+  theme_light() +
+  labs(x = "Votos", y = "Estudios", title = "Votos por estudios secundarios")
+
+df_marzo %>% 
+  na.omit() %>% 
+  select(voto, estudios, porc) %>% 
+  filter(estudios == "Superiores") %>%
+  group_by( porc) %>% 
+  ggplot() +
+  geom_col(mapping = aes(x = voto, y = estudios, fill = voto), show.legend = T) +
+  scale_fill_manual(values = colores) +
+  theme_light() +
+  labs(x = "Votos", y = "Estudios", title = "Votos por estudios superiores")
+
+df_abril %>% 
+  na.omit() %>% 
+  select(voto, estudios, porc) %>% 
+  filter(estudios == "Sin estudios/Primarios") %>%
+  group_by( porc) %>% 
+  ggplot() +
+  geom_col(mapping = aes(x = voto, y = estudios, fill = voto), show.legend = T) +
+  scale_fill_manual(values = colores) +
+  theme_light() +
+  labs(x = "Votos", y = "Sexo", title = "Votos por estudios primarios")
+
+df_abril %>% 
+  na.omit() %>% 
+  select(voto, estudios, porc) %>% 
+  filter(estudios == "Secundarios/FP") %>%
+  group_by( porc) %>% 
+  ggplot() +
+  geom_col(mapping = aes(x = voto, y = estudios, fill = voto), show.legend = T) +
+  scale_fill_manual(values = colores) +
+  theme_light() +
+  labs(x = "Votos", y = "Sexo", title = "Votos por estudios secundarios")
+
+df_abril %>% 
+  na.omit() %>% 
+  select(voto, estudios, porc) %>% 
+  filter(estudios == "Superiores") %>%
+  group_by( porc) %>% 
+  ggplot() +
+  geom_col(mapping = aes(x = voto, y = estudios, fill = voto), show.legend = T) +
+  scale_fill_manual(values = colores) +
+  theme_light() +
+  labs(x = "Votos", y = "Sexo", title = "Votos por estudios superiores")
+
+
+```
+
+
+
+
